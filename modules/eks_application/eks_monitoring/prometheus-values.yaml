@@ -1,0 +1,136 @@
+# Depending on which DNS solution you have installed in your cluster enable the right exporter
+namespaceOverride: "monitoring"
+
+coreDns:
+  enabled: true
+
+kubelet: 
+  enabled: true
+  namespace: kube-system
+
+kubeDns:
+  enabled: true
+
+kubeScheduler:
+  enabled: false
+
+alertmanager:
+  enabled: false
+  config:
+    global:
+      resolve_timeout: 5m
+      slack_api_url: ''
+      smtp_smarthost: 'your_smtp_smarthost:587'
+      smtp_from: 'your_smtp_from'
+      smtp_auth_username: 'your_smtp_user'
+      smtp_auth_password: 'your_smtp_pass'
+    templates:
+    - '/etc/alertmanager/template/*.tmpl'
+    route:
+     group_by: ['alertname', 'cluster', 'service']
+     group_wait: 30s
+     group_interval: 5m
+     repeat_interval: 1h
+     receiver: slack
+     routes:
+     - receiver: 'null'
+       match:
+         alertname: Watchdog     
+     - receiver: blackhole
+       match:
+         severity: warning #defina a severidade irá para o pager EX: warnig (ignora alertas de warning pra baixo)         
+     - receiver: slack
+    receivers:
+    - name: slack
+      slack_configs:
+      - channel: ''
+        send_resolved: true
+        icon_url: https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/220px-Kubernetes_logo_without_workmark.svg.png
+        username: 'Cluster-dev'
+        title: |-
+          [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} for {{ .CommonLabels.job }}
+          {{- if gt (len .CommonLabels) (len .GroupLabels) -}}
+            {{" "}}(
+            {{- with .CommonLabels.Remove .GroupLabels.Names }}
+              {{- range $index, $label := .SortedPairs -}}
+                {{ if $index }}, {{ end }}
+                {{- $label.Name }}="{{ $label.Value -}}"
+              {{- end }}
+            {{- end -}}
+            )
+          {{- end }}
+        text: >-
+          {{ with index .Alerts 0 -}}
+            :chart_with_upwards_trend: *<{{ .GeneratorURL }}|Graph>*
+            {{- if .Annotations.runbook }}   :notebook: *<{{ .Annotations.runbook }}|Runbook>*{{ end }}
+          {{ end }}
+
+          *Alert details*:
+
+          {{ range .Alerts -}}
+            *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+          *Description:* {{ .Annotations.description }}
+          *Details:*
+            {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+            {{ end }}
+          {{ end }}
+      email_configs:
+      - to: 'your_alert_email_address'
+        send_resolved: true    
+    - name: blackhole
+    - name: 'null'
+  
+  alertmanagerSpec:
+    replicas: 2
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp2      
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorNamespaceSelector: {}
+    retention: 15d
+    replicas: 2
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp2     
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 25Gi
+ 
+  service:
+      type: ClusterIP
+      port: 9090
+      targetPort: 9090
+      annotations: {}
+      labels: {}
+
+grafana:
+  enabled: false
+  adminUser: admin
+  adminPassword: Jw9I#S%rgw
+
+  persistence:
+    storageClassName: gp2      
+    enabled: true
+    accessModes: ["ReadWriteOnce"]
+    size: 1Gi
+
+  service:
+    type: LoadBalancer
+    port: 3000
+    targetPort: 3000
+    annotations: {}
+    labels: {}
+
+
+kubeControllerManager:
+  enabled: false
+
