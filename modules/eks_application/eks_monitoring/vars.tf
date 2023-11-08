@@ -24,3 +24,4 @@ variable "k8s_pod_annotations" {
 variable "eks_monitoring_depends_on" {}
 variable "vpc_depends_on" {}
 variable "eks_cluster_depends_on" {}
+variable "eks_cluster_addons_depends_on" {}

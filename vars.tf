@@ -1,4 +1,3 @@
-
 variable "AWS_SECRET_ACCESS_KEY" {
   type        = string
   description = "Secret key da conta que sera provisionado o ambiente, variável mantida pelo Terraform Cloud"
@@ -54,7 +53,7 @@ variable "cluster_policy_arn" {
 }
 
 variable "node_policy_arn" {
-    default = [ "AmazonEKSWorkerNodePolicy", "AmazonEKS_CNI_Policy", "AmazonEC2ContainerRegistryReadOnly" ]
+    default = [ "service-role/AmazonEBSCSIDriverPolicy","AmazonEKSWorkerNodePolicy", "AmazonEKS_CNI_Policy", "AmazonEC2ContainerRegistryReadOnly", "AmazonSSMManagedInstanceCore"]
 }
 
 variable "eks_instance_type" {
@@ -63,4 +62,15 @@ variable "eks_instance_type" {
 
 variable "workspace" {
     default = "jmeter-eks"
+}
+
+variable "cluster_addons" {
+    description = "Map of cluster addon configurations to enable for the cluster. Addon name can be the map keys or set with `name`"
+    type        = any
+    default     = {
+        aws-ebs-csi-driver = {
+            resolve_conflicts_on_create = "OVERWRITE"
+            addon_version     = "v1.24.1-eksbuild.1"            
+        }
+    }
 }

@@ -3,7 +3,7 @@ provider "kubernetes" {
   host                   = var.endpoint
   cluster_ca_certificate = base64decode(var.eks_certificate_authority)
   exec {
-    api_version = "client.authentication.k8s.io/v1alpha1"
+    api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["eks", "get-token", "--cluster-name", var.name]
     command     = "aws"
   }
@@ -34,7 +34,8 @@ resource "kubernetes_cluster_role" "aggregated_metrics_reader" {
   }
 depends_on = [ var.eks_monitoring_depends_on,
                 var.vpc_depends_on,
-                var.eks_cluster_depends_on
+                var.eks_cluster_depends_on,
+                var.eks_cluster_addons_depends_on
             ]
 }
 
@@ -59,7 +60,8 @@ resource "kubernetes_cluster_role_binding" "auth_delegator" {
   }
 depends_on = [ var.eks_monitoring_depends_on,
                var.vpc_depends_on,
-               var.eks_cluster_depends_on
+               var.eks_cluster_depends_on,
+               var.eks_cluster_addons_depends_on
             ]
 }
 
@@ -85,7 +87,8 @@ resource "kubernetes_role_binding" "metrics_server_auth_reader" {
   }
 depends_on = [ var.eks_monitoring_depends_on,
                var.vpc_depends_on,
-               var.eks_cluster_depends_on
+               var.eks_cluster_depends_on,
+               var.eks_cluster_addons_depends_on
             ]
 }
 
@@ -110,7 +113,8 @@ resource "kubernetes_api_service" "this" {
   }
 depends_on = [ var.eks_monitoring_depends_on,
                var.vpc_depends_on,
-               var.eks_cluster_depends_on
+               var.eks_cluster_depends_on,
+               var.eks_cluster_addons_depends_on
             ]
 }
 
@@ -126,7 +130,8 @@ resource "kubernetes_service_account" "this" {
   }
 depends_on = [ var.eks_monitoring_depends_on,
                var.vpc_depends_on,
-               var.eks_cluster_depends_on
+               var.eks_cluster_depends_on,
+               var.eks_cluster_addons_depends_on
             ]
 }
 
@@ -137,7 +142,8 @@ resource "kubernetes_deployment" "this" {
     kubernetes_cluster_role_binding.this,
     var.eks_monitoring_depends_on,
     var.eks_cluster_depends_on,
-    var.vpc_depends_on
+    var.vpc_depends_on,
+    var.eks_cluster_addons_depends_on
   ]
 
   metadata {
@@ -289,7 +295,8 @@ resource "kubernetes_service" "this" {
   }
   depends_on = [ var.eks_monitoring_depends_on,
                 var.vpc_depends_on,
-                var.eks_cluster_depends_on
+                var.eks_cluster_depends_on,
+                var.eks_cluster_addons_depends_on
               ]
 }
 
@@ -319,7 +326,8 @@ resource "kubernetes_cluster_role" "this" {
   }
   depends_on = [ var.eks_monitoring_depends_on,
                 var.vpc_depends_on,
-                var.eks_cluster_depends_on
+                var.eks_cluster_depends_on,
+                var.eks_cluster_addons_depends_on
               ]
 }
 
@@ -345,7 +353,8 @@ resource "kubernetes_cluster_role_binding" "this" {
   }
   depends_on = [ var.eks_monitoring_depends_on,
                 var.vpc_depends_on,
-                var.eks_cluster_depends_on
+                var.eks_cluster_depends_on,
+                var.eks_cluster_addons_depends_on
               ]
 }
 
@@ -356,7 +365,7 @@ provider "helm" {
     host                   = var.endpoint
     cluster_ca_certificate = base64decode(var.eks_certificate_authority)
     exec {
-      api_version = "client.authentication.k8s.io/v1alpha1"
+      api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["eks", "get-token", "--cluster-name", var.name]
       command     = "aws"
     }
@@ -368,7 +377,8 @@ resource "kubernetes_namespace" "monitoring" {
   }
   depends_on = [ var.eks_monitoring_depends_on,
                 var.vpc_depends_on,
-                var.eks_cluster_depends_on
+                var.eks_cluster_depends_on,
+                var.eks_cluster_addons_depends_on
               ]
 }
 

@@ -7,6 +7,7 @@ module "eks_monitoring"{
     eks_monitoring_depends_on = var.eks_application_depends_on
     vpc_depends_on = var.vpc_depends_on
     eks_cluster_depends_on = var.eks_cluster_depends_on
+    eks_cluster_addons_depends_on = var.eks_cluster_addons_depends_on
 }
 
 module "eks_jmeter"{
@@ -17,4 +18,5 @@ module "eks_jmeter"{
     eks_application_depends_on = var.eks_application_depends_on
     vpc_depends_on = var.vpc_depends_on
     eks_cluster_depends_on = var.eks_cluster_depends_on
+    eks_cluster_addons_depends_on = var.eks_cluster_addons_depends_on
 }

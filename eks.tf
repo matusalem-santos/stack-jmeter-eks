@@ -109,10 +109,16 @@ module "eks_node_group" {
   inst_type = [var.eks_instance_type]
   min = 1
   max = 8
-  desired = 1
+  desired = 3
   node_policy_attach_depends_on = module.node_policy_attach
 }
 
+module "eks_cluster_addons" {
+  source = "./modules/eks_cluster_addons"
+  eks_cluster_addons_depends_on = module.eks_node_group
+  cluster_name= var.workspace
+  cluster_addons = var.cluster_addons
+}
 module "eks_application" {
   source = "./modules/eks_application"
   name       = module.eks_cluster.name
@@ -121,6 +127,7 @@ module "eks_application" {
   eks_application_depends_on = module.eks_node_group
   vpc_depends_on = module.public_rtb_assoc
   eks_cluster_depends_on = module.eks_cluster
+  eks_cluster_addons_depends_on = module.eks_cluster_addons
 }
 
 resource "null_resource" "outputs" {

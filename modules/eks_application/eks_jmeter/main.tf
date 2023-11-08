@@ -4,7 +4,7 @@ provider "kubernetes" {
   host                   = var.endpoint
   cluster_ca_certificate = base64decode(var.eks_certificate_authority)
   exec {
-    api_version = "client.authentication.k8s.io/v1alpha1"
+    api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["eks", "get-token", "--cluster-name", var.name]
     command     = "aws"
   }
@@ -30,7 +30,8 @@ resource "kubernetes_namespace" "jmeter" {
     depends_on = [
         var.eks_application_depends_on,
         var.vpc_depends_on,
-        var.eks_cluster_depends_on
+        var.eks_cluster_depends_on,
+        var.eks_cluster_addons_depends_on
     ]
 }
 
@@ -64,7 +65,7 @@ resource "kubernetes_deployment" "jmeter-slaves" {
 
     spec {
 
-        replicas = 2
+        replicas = 3
 
         selector {
             match_labels = {
@@ -429,7 +430,7 @@ resource "kubernetes_deployment" "jmeter-grafana" {
 
                 container {
 
-                    image             = "grafana/grafana:7.3.0"
+                    image             = "grafana/grafana:10.2.0"
                     image_pull_policy = "IfNotPresent"
 
                     name = "grafana"
