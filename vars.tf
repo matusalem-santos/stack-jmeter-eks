@@ -1,19 +1,11 @@
-variable "AWS_SECRET_ACCESS_KEY" {
-  type        = string
-  description = "Secret key da conta que sera provisionado o ambiente, variável mantida pelo Terraform Cloud"
-}
 
-variable "AWS_ACCESS_KEY_ID" {
-  type        = string
-  description = "Access key da conta que sera provisionado o ambiente, variável mantida pelo Terraform Cloud"
-}
 
 variable "env" {
     default = "dev"
 }
 
 variable "aws_region"{
-    default = "us-east-1"
+    default = "us-east-2"
 }
 
 variable "vpc_cidr" {

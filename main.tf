@@ -1,14 +1,9 @@
 terraform {
   # Versão do terraform definida no Terraform Cloud
-  required_version = "~> 0.14.3"
+  required_version = "~> 1.1.9"
   # Informações do Projeto no Terraform Cloud
-  backend "remote" {
-    hostname = "app.terraform.io"
-    organization = "monit"
-
-    workspaces {
-      name = "jmeter-eks-terraform"
-    }
+  backend "local" {
+    path = "terraform.tfstate"
   }
 }
 provider "aws" {
