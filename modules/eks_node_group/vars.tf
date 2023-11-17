@@ -26,3 +26,8 @@ variable "inst_type" {
     default = [ "t3.medium" ]
 }
 variable "node_policy_attach_depends_on" {}
+variable capacity_type {
+  type        = string
+  default     = "SPOT"
+  description = "capacity_type"
+}

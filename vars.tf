@@ -13,7 +13,7 @@ variable "vpc_cidr" {
 }
 
 variable "subnet_count"{
-    default = 3
+    default = 2
 }
 
 variable "internet_cidr" {
@@ -48,8 +48,8 @@ variable "node_policy_arn" {
     default = [ "service-role/AmazonEBSCSIDriverPolicy","AmazonEKSWorkerNodePolicy", "AmazonEKS_CNI_Policy", "AmazonEC2ContainerRegistryReadOnly", "AmazonSSMManagedInstanceCore"]
 }
 
-variable "eks_instance_type" {
-    default = "m5.xlarge"
+variable "eks_instance_types" {
+    default = ["m5.xlarge", "m4.xlarge", "c5.xlarge","c4.xlarge","r3.xlarge","r4.xlarge","t3.xlarge","t3a.xlarge", "c5a.xlarge", "m5a.xlarge"]
 }
 
 variable "workspace" {

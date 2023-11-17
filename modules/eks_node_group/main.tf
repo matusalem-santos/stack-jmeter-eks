@@ -4,6 +4,7 @@ resource "aws_eks_node_group" "node" {
   node_role_arn   = var.node_role
   subnet_ids      = var.subnets
   instance_types = var.inst_type
+  capacity_type   = var.capacity_type
 
   tags = {
     Name = "jmeter-eks-node"

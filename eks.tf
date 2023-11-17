@@ -104,9 +104,9 @@ module "eks_node_group" {
   source = "./modules/eks_node_group"
   eks_cluster_name = module.eks_cluster.name
   node_role = module.node_role.arn
-  subnets = module.public_subnet.id
+  subnets = [module.public_subnet.id[0]]
   eks_node_group_depends_on = module.eks_cluster
-  inst_type = [var.eks_instance_type]
+  inst_type = var.eks_instance_types
   min = 1
   max = 8
   desired = 3
