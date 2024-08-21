@@ -100,6 +100,41 @@ module "eks_cluster" {
   public_route_depends_on = module.public_route
 }
 
+module "eks_cluster_oidc" {
+  source = "./modules/iam_oidc"
+  url = module.eks_cluster.oidc_url
+  client_id_list = ["sts.amazonaws.com"]
+  thumbprint_list = []
+}
+
+module "iam_role_for_service_accounts_eks" {
+  source = "./modules/iam_role_for_service_accounts_eks"
+  policy_type = "Federated"
+  policy_identifiers = module.eks_cluster_oidc.arn
+  role_name = "AmazonEKS_EBS_CSI_DriverRole_JMeter_EKS"
+  role_action = "sts:AssumeRoleWithWebIdentity"
+  conditions = [
+      {
+          test       = "StringEquals"
+          variable   = "${trimprefix(module.eks_cluster.oidc_url, "https://")}:sub"
+          values      = [
+              "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          ]
+
+      },
+      {
+          test       = "StringEquals"
+          variable   = "${trimprefix(module.eks_cluster.oidc_url, "https://")}:aud"
+          values      = [
+              "sts.amazonaws.com"
+          ]
+
+      }
+  ]
+
+  policy_arns = var.ebs_csi_policy_arn
+}
+
 module "eks_node_group" {
   source = "./modules/eks_node_group"
   eks_cluster_name = module.eks_cluster.name
@@ -117,7 +152,13 @@ module "eks_cluster_addons" {
   source = "./modules/eks_cluster_addons"
   eks_cluster_addons_depends_on = module.eks_node_group
   cluster_name= var.workspace
-  cluster_addons = var.cluster_addons
+  cluster_addons = {
+    aws-ebs-csi-driver = {
+        resolve_conflicts_on_create = "OVERWRITE"
+        addon_version     = "v1.30.0-eksbuild.1"    
+        service_account_role_arn = module.iam_role_for_service_accounts_eks.role_arn[0]       
+    }
+  }
 }
 module "eks_application" {
   source = "./modules/eks_application"
