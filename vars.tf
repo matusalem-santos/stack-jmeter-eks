@@ -5,7 +5,7 @@ variable "env" {
 }
 
 variable "aws_region"{
-    default = "us-east-2"
+    default = "us-east-1"
 }
 
 variable "vpc_cidr" {
@@ -48,21 +48,14 @@ variable "node_policy_arn" {
     default = [ "service-role/AmazonEBSCSIDriverPolicy","AmazonEKSWorkerNodePolicy", "AmazonEKS_CNI_Policy", "AmazonEC2ContainerRegistryReadOnly", "AmazonSSMManagedInstanceCore"]
 }
 
+variable "ebs_csi_policy_arn" {
+    default = [ "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"]
+}
+
 variable "eks_instance_types" {
     default = ["m5.xlarge", "m4.xlarge", "c5.xlarge","c4.xlarge","r3.xlarge","r4.xlarge","t3.xlarge","t3a.xlarge", "c5a.xlarge", "m5a.xlarge"]
 }
 
 variable "workspace" {
     default = "jmeter-eks"
-}
-
-variable "cluster_addons" {
-    description = "Map of cluster addon configurations to enable for the cluster. Addon name can be the map keys or set with `name`"
-    type        = any
-    default     = {
-        aws-ebs-csi-driver = {
-            resolve_conflicts_on_create = "OVERWRITE"
-            addon_version     = "v1.24.1-eksbuild.1"            
-        }
-    }
 }
